@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/MockingbirdME/d3#readme",
   "dependencies": {
+    "eslint": "^8.14.0",
     "esm": "3.2.25"
   }
 }

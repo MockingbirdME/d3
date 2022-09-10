@@ -69,7 +69,7 @@ export default class TraitTree {
     };
   }
 
-  constructor({name = 'Unknown Skill', isSkillTree = false, recurringTraits = [], oneOffTraits = []}) {
+  constructor({name = 'Unknown Skill', isSkillTree = false, skillChecks = [], traits = []}) {
     this._traits = [];
     this._name = name;
 
@@ -80,16 +80,23 @@ export default class TraitTree {
         this.addTrait({...skillProficiencyLevel, name: `${name} proficiency, ${proficiencyLevel}`, text: baseText.replace('<SKILL>', name)});
       }
     }
-    for (const trait of recurringTraits) {
-      if (trait.name.includes(', Skill Focus')) {
-        this.addTrait(TraitTree.generateDabblerTraitConfig(trait.name.replace(', Skill Focus', '')));
-      }
-      for (const cost of [2, 3, 5, 8]) {
-        this.addTrait(TraitTree.generateTraitConfig({...trait, cost}));
+
+    for (const skillCheck of skillChecks) {
+      this.addTrait(TraitTree.generateDabblerTraitConfig());
+      for (const cost of [2, 5]) {
+        const name = `${skillCheck.name} ${cost === 2 ? 'Specialist' : 'Savant'}`;
+        effect = {
+          text: `Gain ${cost === 2 ? 'one additional success on successful' : '+1 to'} ${skillCheck.name} skill checks.`
+        }
+        this.addTrait(TraitTree.generateTraitConfig({name, effect, cost}));
       }
     }
-    for (const trait of oneOffTraits) {
-      this.addTrait(TraitTree.generateTraitConfig({...trait}));
+
+    for (const trait of [...skillChecks, recurringTraits]) {
+      costs = trait.costs || [2, 3, 5, 8];
+      for (const cost of costs) {
+        this.addTrait(TraitTree.generateTraitConfig({...trait, cost}));
+      }
     }
   }
 
@@ -97,5 +104,3 @@ export default class TraitTree {
     this._traits.push(new Trait(traitConfig));
   }
 }
-
-
